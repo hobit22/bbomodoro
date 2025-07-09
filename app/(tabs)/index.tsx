@@ -21,7 +21,7 @@ const TimerScreenContent: React.FC = () => {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.contentContainer}>
         <View style={styles.header}>
           <Text style={styles.title}>Pomodoro Timer</Text>
@@ -41,7 +41,7 @@ const TimerScreenContent: React.FC = () => {
           </Text>
         </View>
       </View>
-    </ScrollView>
+    </View>
   );
 };
 
