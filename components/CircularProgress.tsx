@@ -1,11 +1,5 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  interpolate,
-} from 'react-native-reanimated';
 import Svg, { Circle } from 'react-native-svg';
 
 interface CircularProgressProps {
@@ -23,27 +17,18 @@ const CircularProgress: React.FC<CircularProgressProps> = ({
   color,
   backgroundColor = '#E5E7EB',
 }) => {
-  const animatedProgress = useSharedValue(0);
+  const [animatedProgress, setAnimatedProgress] = React.useState(0);
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
 
   React.useEffect(() => {
-    animatedProgress.value = withTiming(progress, {
-      duration: 500,
-    });
+    const timer = setTimeout(() => {
+      setAnimatedProgress(progress);
+    }, 50);
+    return () => clearTimeout(timer);
   }, [progress]);
 
-  const animatedStyle = useAnimatedStyle(() => {
-    const strokeDashoffset = interpolate(
-      animatedProgress.value,
-      [0, 1],
-      [circumference, 0]
-    );
-
-    return {
-      strokeDashoffset,
-    };
-  });
+  const strokeDashoffset = circumference * (1 - animatedProgress);
 
   return (
     <View style={[styles.container, { width: size, height: size }]}>
@@ -59,21 +44,18 @@ const CircularProgress: React.FC<CircularProgressProps> = ({
         />
         
         {/* Progress circle */}
-        <Animated.View style={[StyleSheet.absoluteFillObject, animatedStyle]}>
-          <Svg width={size} height={size}>
-            <Circle
-              cx={size / 2}
-              cy={size / 2}
-              r={radius}
-              stroke={color}
-              strokeWidth={strokeWidth}
-              fill="transparent"
-              strokeDasharray={circumference}
-              strokeLinecap="round"
-              transform={`rotate(-90 ${size / 2} ${size / 2})`}
-            />
-          </Svg>
-        </Animated.View>
+        <Circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke={color}
+          strokeWidth={strokeWidth}
+          fill="transparent"
+          strokeDasharray={circumference}
+          strokeLinecap="round"
+          transform={`rotate(-90 ${size / 2} ${size / 2})`}
+          strokeDashoffset={strokeDashoffset}
+        />
       </Svg>
     </View>
   );

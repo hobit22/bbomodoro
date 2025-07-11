@@ -94,7 +94,7 @@ export const PomodoroProvider: React.FC<PomodoroProviderProps> = ({ children }) 
         setStats(cleanedStats);
       }
     } catch (error) {
-      // ignore
+      console.error('Error loading stats from AsyncStorage:', error);
     }
   };
 
@@ -115,7 +115,7 @@ export const PomodoroProvider: React.FC<PomodoroProviderProps> = ({ children }) 
 
   // Timer countdown logic
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: number;
     if (isActive && !isPaused && timeLeft > 0) {
       interval = setInterval(() => {
         setTimeLeft(prev => prev - 1);
@@ -217,7 +217,7 @@ export const PomodoroProvider: React.FC<PomodoroProviderProps> = ({ children }) 
     try {
       await AsyncStorage.setItem('pomodoro_stats', JSON.stringify(newStats));
     } catch (error) {
-      // ignore
+      console.error('Error updating stats in AsyncStorage:', error);
     }
   };
 

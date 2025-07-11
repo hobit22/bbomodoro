@@ -11,7 +11,7 @@ import {
 } from '@expo-google-fonts/inter';
 import * as SplashScreen from 'expo-splash-screen';
 import { PomodoroProvider } from '@/contexts/PomodoroContext';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -36,16 +36,14 @@ export default function RootLayout() {
   }
 
   return (
-    <SafeAreaProvider>
       <PomodoroProvider>
-        <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom', 'left', 'right']}>
+        <SafeAreaView style={{ flex: 1 }}>
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="+not-found" />
           </Stack>
-          <StatusBar style="auto" />
+          <StatusBar style="auto" />  
         </SafeAreaView>
       </PomodoroProvider>
-    </SafeAreaProvider>
   );
 }
