@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AppState } from 'react-native';
 
 export type SessionType = 'work' | 'shortBreak' | 'longBreak';
 
@@ -75,6 +76,7 @@ export const PomodoroProvider: React.FC<PomodoroProviderProps> = ({ children }) 
   const [sessionCount, setSessionCount] = useState(0);
   const [settings, setSettings] = useState<PomodoroSettings>(defaultSettings);
   const [stats, setStats] = useState<SessionStats[]>([]);
+  const [lastActiveTime, setLastActiveTime] = useState<number | null>(null);
 
   // Load stats from AsyncStorage on mount
   useEffect(() => {
@@ -125,6 +127,23 @@ export const PomodoroProvider: React.FC<PomodoroProviderProps> = ({ children }) 
     }
     return () => clearInterval(interval);
   }, [isActive, isPaused, timeLeft]);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
+      if (nextAppState === 'background') {
+        // 백그라운드로 갈 때 현재 시간 저장
+        setLastActiveTime(Date.now());
+      }
+      if (nextAppState === 'active' && lastActiveTime && isActive && !isPaused) {
+        // 다시 활성화될 때 시간 차이만큼 타이머 보정
+        const now = Date.now();
+        const diff = Math.floor((now - lastActiveTime) / 1000); // 초 단위
+        setTimeLeft(prev => Math.max(prev - diff, 0));
+        setLastActiveTime(null);
+      }
+    });
+    return () => subscription.remove();
+  }, [lastActiveTime, isActive, isPaused]);
 
   const getDurationForSession = (session: SessionType): number => {
     switch (session) {
