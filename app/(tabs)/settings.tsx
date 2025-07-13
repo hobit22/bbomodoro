@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch } from 'react-native';
 import { usePomodoroContext } from '@/contexts/PomodoroContext';
-import { Clock, Coffee, Timer, Volume2 } from 'lucide-react-native';
+import { Clock, Coffee, Timer, Volume2, Bell } from 'lucide-react-native';
 
 const SettingsScreenContent: React.FC = () => {
   const { settings, updateSettings, stats } = usePomodoroContext();
@@ -130,6 +130,13 @@ const SettingsScreenContent: React.FC = () => {
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Notifications</Text>
+        <ToggleSetting
+          title="Push Notifications"
+          subtitle="Send notifications when sessions end"
+          value={settings.notificationEnabled}
+          settingKey="notificationEnabled"
+          icon={<Bell size={24} color="#DC2626" />}
+        />
         <ToggleSetting
           title="Sound Notifications"
           subtitle="Play sound when sessions end"

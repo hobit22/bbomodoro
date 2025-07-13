@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AppState } from 'react-native';
+import * as Notifications from 'expo-notifications';
 
 export type SessionType = 'work' | 'shortBreak' | 'longBreak';
 
@@ -12,6 +13,7 @@ interface PomodoroSettings {
   autoStartBreaks: boolean;
   autoStartWork: boolean;
   soundEnabled: boolean;
+  notificationEnabled: boolean;
 }
 
 interface SessionStats {
@@ -52,6 +54,7 @@ const defaultSettings: PomodoroSettings = {
   autoStartBreaks: true,
   autoStartWork: true,
   soundEnabled: true,
+  notificationEnabled: true,
 };
 
 const PomodoroContext = createContext<PomodoroContextType | undefined>(undefined);
@@ -161,6 +164,12 @@ export const PomodoroProvider: React.FC<PomodoroProviderProps> = ({ children }) 
   const handleSessionComplete = () => {
     setIsActive(false);
     setIsPaused(false);
+    
+    // 알림 보내기 (설정이 활성화된 경우)
+    if (settings.notificationEnabled) {
+      sendNotification();
+    }
+    
     if (settings.soundEnabled) {
       playNotificationSound();
     }
@@ -195,6 +204,27 @@ export const PomodoroProvider: React.FC<PomodoroProviderProps> = ({ children }) 
       return settings.autoStartWork;
     } else {
       return settings.autoStartBreaks;
+    }
+  };
+
+  const sendNotification = async () => {
+    try {
+      const sessionMessages = {
+        work: '작업 시간이 끝났습니다! 휴식을 취하세요.',
+        shortBreak: '짧은 휴식이 끝났습니다! 다시 작업을 시작하세요.',
+        longBreak: '긴 휴식이 끝났습니다! 새로운 작업을 시작하세요.'
+      };
+
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: '뽀모도로 타이머',
+          body: sessionMessages[currentSession],
+          sound: 'default',
+        },
+        trigger: null, // 즉시 알림
+      });
+    } catch (error) {
+      console.error('알림 전송 실패:', error);
     }
   };
 
