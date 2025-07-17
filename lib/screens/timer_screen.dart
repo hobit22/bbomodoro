@@ -126,7 +126,9 @@ class _TimerScreenState extends State<TimerScreen> {
                           await LockTaskUtil.stopLockTask();
                         } else {
                           timerProvider.startTimer();
-                          await LockTaskUtil.startLockTask();
+                          if (timerProvider.currentMode == TimerMode.focus) {
+                            await LockTaskUtil.startLockTask();
+                          }
                         }
                       },
                       icon: Icon(

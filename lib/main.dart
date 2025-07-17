@@ -5,6 +5,7 @@ import 'package:bbomodoro/screens/settings_screen.dart';
 import 'package:bbomodoro/screens/stats_screen.dart';
 import 'package:bbomodoro/providers/pomodoro_provider.dart';
 import 'package:bbomodoro/providers/timer_provider.dart';
+import 'package:bbomodoro/providers/timer_provider.dart' show TimerMode;
 
 void main() {
   runApp(const MyApp());
@@ -70,9 +71,28 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    final timerProvider = Provider.of<TimerProvider>(context, listen: false);
+    final isFocusMode =
+        timerProvider.isRunning && timerProvider.currentMode == TimerMode.focus;
+    if (isFocusMode) {
+      // 포커스 모드 실행 중에는 타이머 탭(0)만 허용
+      if (index == 0) {
+        setState(() {
+          _selectedIndex = index;
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('집중해야지?'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } else {
+      setState(() {
+        _selectedIndex = index;
+      });
+    }
   }
 
   @override
