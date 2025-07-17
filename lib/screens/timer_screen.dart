@@ -4,6 +4,8 @@ import '../providers/timer_provider.dart';
 import '../providers/pomodoro_provider.dart';
 import '../utils/date_utils.dart' as app_date_utils;
 import '../constants/app_constants.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
+import '../utils/ui_utils.dart';
 
 class TimerScreen extends StatefulWidget {
   const TimerScreen({super.key});
@@ -23,6 +25,14 @@ class _TimerScreenState extends State<TimerScreen> {
       timerProvider.setPomodoroCompletedCallback(_savePomodoro);
       timerProvider.setMessageCallback(_showCompletionMessage);
     });
+    WakelockPlus.enable();
+  }
+
+  @override
+  void dispose() {
+    // 포커스타임 종료 시 화면 꺼짐 허용
+    WakelockPlus.disable();
+    super.dispose();
   }
 
   Future<void> _savePomodoro(DateTime startTime, DateTime endTime) async {
@@ -110,9 +120,15 @@ class _TimerScreenState extends State<TimerScreen> {
                   children: [
                     IconButton(
                       iconSize: AppConstants.largeIconSize,
-                      onPressed: timerProvider.isRunning
-                          ? timerProvider.pauseTimer
-                          : timerProvider.startTimer,
+                      onPressed: () async {
+                        if (timerProvider.isRunning) {
+                          timerProvider.pauseTimer();
+                          await LockTaskUtil.stopLockTask();
+                        } else {
+                          timerProvider.startTimer();
+                          await LockTaskUtil.startLockTask();
+                        }
+                      },
                       icon: Icon(
                         timerProvider.isRunning
                             ? Icons.pause_circle_filled
@@ -123,13 +139,19 @@ class _TimerScreenState extends State<TimerScreen> {
                     const SizedBox(width: 20),
                     IconButton(
                       iconSize: AppConstants.largeIconSize,
-                      onPressed: timerProvider.resetTimer,
+                      onPressed: () async {
+                        timerProvider.resetTimer();
+                        await LockTaskUtil.stopLockTask();
+                      },
                       icon: const Icon(Icons.refresh),
                     ),
                     const SizedBox(width: 20),
                     IconButton(
                       iconSize: AppConstants.largeIconSize,
-                      onPressed: timerProvider.skipToNext,
+                      onPressed: () async {
+                        timerProvider.skipToNext();
+                        await LockTaskUtil.stopLockTask();
+                      },
                       icon: const Icon(Icons.skip_next),
                     ),
                   ],

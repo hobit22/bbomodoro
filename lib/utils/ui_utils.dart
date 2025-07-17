@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
+import 'package:flutter/services.dart';
 
 class UIUtils {
   // 스낵바 표시
@@ -199,5 +200,25 @@ class UIUtils {
         ],
       ),
     );
+  }
+}
+
+class LockTaskUtil {
+  static const MethodChannel _channel = MethodChannel('bbomodoro/locktask');
+
+  static Future<void> startLockTask() async {
+    try {
+      await _channel.invokeMethod('startLockTask');
+    } catch (e) {
+      // ignore or handle error
+    }
+  }
+
+  static Future<void> stopLockTask() async {
+    try {
+      await _channel.invokeMethod('stopLockTask');
+    } catch (e) {
+      // ignore or handle error
+    }
   }
 }
